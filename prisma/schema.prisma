@@ -1,0 +1,169 @@
+generator client {
+    provider = "prisma-client-js"
+    binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x"]
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model User {
+  id                   String    @id @default(uuid())
+  name                 String
+  email                String    @unique
+  passwordHash         String    @map("password_hash")
+  role                 String    @default("user")
+  dailyTime            String?   @map("daily_time")
+  goals                String[]
+  frequency            String?
+  preferredTime        String?   @map("preferred_time")
+  plan                 String    @default("free")
+  aiCredits            Int       @default(3) @map("ai_credits")
+  aiCreditsResetAt     DateTime? @map("ai_credits_reset_at")
+  currentStreak        Int       @default(0) @map("current_streak")
+  lastMomentAt         DateTime? @map("last_moment_at")
+  notificationsEnabled Boolean   @default(true) @map("notifications_enabled")
+  onboardingCompleted  Boolean   @default(false) @map("onboarding_completed")
+  createdAt            DateTime  @default(now()) @map("created_at")
+  updatedAt            DateTime  @updatedAt @map("updated_at")
+
+  moments       Moment[]
+  diaryEntries  DiaryEntry[]
+  subscriptions Subscription[]
+  aiUsageLogs   AiUsageLog[]
+  events        Event[]
+  accounts      Account[]
+  sessions      Session[]
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(uuid())
+  userId            String  @map("user_id")
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(uuid())
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id")
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model Moment {
+  id              String    @id @default(uuid())
+  userId          String    @map("user_id")
+  completedAt     DateTime? @map("completed_at")
+  theme           String?
+  bibleReference  String?   @map("bible_reference")
+  bibleText       String?
+  reflection      String?
+  prayer          String?
+  userReflection  String?   @map("user_reflection")
+  mood            String?
+  durationMinutes Int?      @map("duration_minutes")
+  createdAt       DateTime  @default(now()) @map("created_at")
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  diaryEntries DiaryEntry[]
+
+  @@map("moments")
+}
+
+model DiaryEntry {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  content   String
+  entryType String   @map("entry_type")
+  momentId  String?  @map("moment_id")
+  mood      String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  moment Moment? @relation(fields: [momentId], references: [id], onDelete: SetNull)
+
+  @@map("diary_entries")
+}
+
+model Song {
+  id              String   @id @default(uuid())
+  title           String
+  artist          String?
+  category        String
+  coverUrl        String?  @map("cover_url")
+  audioUrl        String?  @map("audio_url")
+  durationSeconds Int?     @map("duration_seconds")
+  isFree          Boolean  @default(true) @map("is_free")
+  isActive        Boolean  @default(true) @map("is_active")
+  playCount       Int      @default(0) @map("play_count")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  @@map("songs")
+}
+
+model Subscription {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  plan      String
+  status    String   @default("active")
+  priceBrl  Float    @map("price_brl")
+  startedAt DateTime @default(now()) @map("started_at")
+  renewsAt  DateTime? @map("renews_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("subscriptions")
+}
+
+model AiUsageLog {
+  id          String   @id @default(uuid())
+  userId      String   @map("user_id")
+  actionType  String   @map("action_type")
+  creditsUsed Int      @map("credits_used")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("ai_usage_log")
+}
+
+model AppSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("app_settings")
+}
+
+model Event {
+  id        String   @id @default(uuid())
+  userId    String?  @map("user_id")
+  eventType String   @map("event_type")
+  metadata  String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@map("events")
+}
