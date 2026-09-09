@@ -29,7 +29,7 @@ export default function CadastroPage() {
       });
       const data = await res.json();
       if (!res.ok) {
-        toast.error(data?.error ?? 'Erro ao criar conta.');
+        toast.error(data?.debug ?? data?.error ?? 'Erro ao criar conta.');
         return;
       }
       // Auto login
