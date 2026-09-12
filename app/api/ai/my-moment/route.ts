@@ -18,7 +18,6 @@ export async function POST(request: Request) {
     for (const s of settings) settingsMap[s.key] = s.value;
     const baseCost = parseInt(settingsMap['my_moment_credit_cost'] ?? '2', 10);
 
-    // Primeira geração é gratuita (teaser)
     const priorGenerations = await prisma.aiUsageLog.count({
       where: { userId, actionType: 'my_moment' },
     });
@@ -34,37 +33,36 @@ export async function POST(request: Request) {
 
     const prompt = `Você é um assistente espiritual cristão acolhedor. O usuário ${userName ?? 'irmão(a)'} compartilhou o seguinte:\n\n"${userMessage}"\n\nCrie uma experiência espiritual personalizada. Responda em JSON com esta estrutura exata:\n{\n  "reflection": "Uma reflexão acolhedora de 3-5 frases",\n  "bibleReference": "Referência bíblica sugerida (ex: João 3:16)",\n  "bibleText": "O texto da passagem bíblica",\n  "prayer": "Uma oração personalizada de 4-6 frases",\n  "reflectionQuestion": "Uma pergunta para reflexão",\n  "musicSuggestionCategory": "Uma categoria: Oração, Paz, Gratidão, Adoração, Começar o dia, Antes de dormir ou Momentos difíceis"\n}\n\nRegras:\n- Tom cristão, respeitoso, acolhedor, não julgador\n- Português brasileiro\n- Não se apresente como Deus\n- Não forneça aconselhamento médico/psicológico/financeiro/jurídico\n\nResponda com raw JSON apenas. Sem code blocks ou markdown.`;
 
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': process.env.ANTHROPIC_API_KEY ?? '',
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 1024,
-        messages: [{ role: 'user', content: prompt }],
-      }),
-    });
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GOOGLE_AI_API_KEY}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { maxOutputTokens: 1024, temperature: 0.7 },
+        }),
+      }
+    );
 
     if (!response.ok) {
       const err = await response.text();
-      console.error('Anthropic error:', err);
+      console.error('Gemini error:', err);
       return NextResponse.json({ error: 'Erro ao gerar momento' }, { status: 500 });
     }
 
     const data = await response.json();
-    const text = data?.content?.[0]?.text ?? '';
+    const text = (data?.candidates?.[0]?.content?.parts?.[0]?.text ?? '').trim();
 
     let result: any;
     try {
-      result = JSON.parse(text);
+      // Remove markdown code blocks if present
+      const clean = text.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
+      result = JSON.parse(clean);
     } catch {
       result = { reflection: text };
     }
 
-    // Deduct credits (primeira geração é gratuita, cost = 0)
     if (cost > 0) {
       await prisma.user.update({
         where: { id: userId },
