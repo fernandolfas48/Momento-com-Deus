@@ -18,7 +18,7 @@ export async function POST(request: Request) {
     for (const s of settings) settingsMap[s.key] = s.value;
     const baseCost = parseInt(settingsMap['my_moment_credit_cost'] ?? '2', 10);
 
-    // Primeira geração é gratuita (teaser), não consome créditos nem exige saldo.
+    // Primeira geração é gratuita (teaser)
     const priorGenerations = await prisma.aiUsageLog.count({
       where: { userId, actionType: 'my_moment' },
     });
@@ -32,45 +32,36 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { userMessage, userName } = body ?? {};
 
-    const prompt = `Você é um assistente espiritual cristão acolhedor. O usuário ${userName ?? 'irmão(a)'} compartilhou o seguinte:
+    const prompt = `Você é um assistente espiritual cristão acolhedor. O usuário ${userName ?? 'irmão(a)'} compartilhou o seguinte:\n\n"${userMessage}"\n\nCrie uma experiência espiritual personalizada. Responda em JSON com esta estrutura exata:\n{\n  "reflection": "Uma reflexão acolhedora de 3-5 frases",\n  "bibleReference": "Referência bíblica sugerida (ex: João 3:16)",\n  "bibleText": "O texto da passagem bíblica",\n  "prayer": "Uma oração personalizada de 4-6 frases",\n  "reflectionQuestion": "Uma pergunta para reflexão",\n  "musicSuggestionCategory": "Uma categoria: Oração, Paz, Gratidão, Adoração, Começar o dia, Antes de dormir ou Momentos difíceis"\n}\n\nRegras:\n- Tom cristão, respeitoso, acolhedor, não julgador\n- Português brasileiro\n- Não se apresente como Deus\n- Não forneça aconselhamento médico/psicológico/financeiro/jurídico\n\nResponda com raw JSON apenas. Sem code blocks ou markdown.`;
 
-"${userMessage}"
-
-Crie uma experiência espiritual personalizada. Responda em JSON com esta estrutura exata:
-{
-  "reflection": "Uma reflexão acolhedora de 3-5 frases",
-  "bibleReference": "Referência bíblica sugerida (ex: João 3:16)",
-  "bibleText": "O texto da passagem bíblica",
-  "prayer": "Uma oração personalizada de 4-6 frases",
-  "reflectionQuestion": "Uma pergunta para reflexão",
-  "musicSuggestionCategory": "Uma categoria: Oração, Paz, Gratidão, Adoração, Começar o dia, Antes de dormir ou Momentos difíceis"
-}
-
-Regras:
-- Tom cristão, respeitoso, acolhedor, não julgador
-- Português brasileiro
-- Não se apresente como Deus
-- Não forneça aconselhamento médico/psicológico/financeiro/jurídico
-
-Responda com raw JSON apenas. Sem code blocks ou markdown.`;
-
-    const response = await fetch('https://apps.abacus.ai/v1/chat/completions', {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.ABACUSAI_API_KEY}`,
+        'x-api-key': process.env.ANTHROPIC_API_KEY ?? '',
+        'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'gpt-5.4-mini',
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 1024,
         messages: [{ role: 'user', content: prompt }],
-        stream: true,
-        max_tokens: 1000,
-        response_format: { type: 'json_object' },
       }),
     });
 
     if (!response.ok) {
+      const err = await response.text();
+      console.error('Anthropic error:', err);
       return NextResponse.json({ error: 'Erro ao gerar momento' }, { status: 500 });
+    }
+
+    const data = await response.json();
+    const text = data?.content?.[0]?.text ?? '';
+
+    let result: any;
+    try {
+      result = JSON.parse(text);
+    } catch {
+      result = { reflection: text };
     }
 
     // Deduct credits (primeira geração é gratuita, cost = 0)
@@ -84,60 +75,11 @@ Responda com raw JSON apenas. Sem code blocks ou markdown.`;
       data: { userId, actionType: 'my_moment', creditsUsed: cost },
     });
 
-    // Buffer JSON response
-    const reader = response.body?.getReader();
-    const decoder = new TextDecoder();
     const encoder = new TextEncoder();
-    let buffer = '';
-    let partialRead = '';
-
     const stream = new ReadableStream({
-      async start(controller) {
-        try {
-          while (true) {
-            const { done, value } = await reader!.read();
-            if (done) break;
-            partialRead += decoder.decode(value, { stream: true });
-            const lines = partialRead.split('\n');
-            partialRead = lines.pop() ?? '';
-            for (const line of lines) {
-              if (line.startsWith('data: ')) {
-                const data = line.slice(6);
-                if (data === '[DONE]') {
-                  try {
-                    const finalResult = JSON.parse(buffer);
-                    const finalData = JSON.stringify({ status: 'completed', result: finalResult, isFirstGeneration, creditsUsed: cost });
-                    controller.enqueue(encoder.encode(`data: ${finalData}\n\n`));
-                  } catch {
-                    controller.enqueue(encoder.encode(`data: ${JSON.stringify({ status: 'completed', result: { reflection: buffer }, isFirstGeneration, creditsUsed: cost })}\n\n`));
-                  }
-                  controller.close();
-                  return;
-                }
-                try {
-                  const parsed = JSON.parse(data);
-                  buffer += parsed?.choices?.[0]?.delta?.content ?? '';
-                  const progressData = JSON.stringify({ status: 'processing', message: 'Gerando seu momento...' });
-                  controller.enqueue(encoder.encode(`data: ${progressData}\n\n`));
-                } catch {}
-              }
-            }
-          }
-          // If we get here without DONE
-          if (buffer) {
-            try {
-              const finalResult = JSON.parse(buffer);
-              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ status: 'completed', result: finalResult, isFirstGeneration, creditsUsed: cost })}\n\n`));
-            } catch {
-              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ status: 'completed', result: { reflection: buffer }, isFirstGeneration, creditsUsed: cost })}\n\n`));
-            }
-          }
-          controller.close();
-        } catch (error) {
-          console.error('Stream error:', error);
-          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ status: 'error', message: 'Erro ao processar' })}\n\n`));
-          controller.close();
-        }
+      start(controller) {
+        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ status: 'completed', result, isFirstGeneration, creditsUsed: cost })}\n\n`));
+        controller.close();
       },
     });
 

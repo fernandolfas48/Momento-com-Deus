@@ -25,38 +25,30 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { topic, context, userName } = body ?? {};
 
-    const prompt = `Você é um assistente espiritual cristão acolhedor. Gere uma oração personalizada em português brasileiro.
+    const prompt = `Você é um assistente espiritual cristão acolhedor. Gere uma oração personalizada em português brasileiro.\n\nNome do usuário: ${userName ?? 'irmão(a)'}\nTema: ${topic ?? 'geral'}\nContexto adicional: ${context ?? 'nenhum'}\n\nRegras:\n- Tom respeitoso, acolhedor e cristão\n- Não se apresente como Deus nem fale em nome de Deus\n- Não forneça aconselhamento médico, psicológico, financeiro ou jurídico\n- A oração deve ter entre 4-8 frases\n- Use linguagem simples e reconfortante\n\nGere apenas a oração, sem títulos ou explicações.`;
 
-Nome do usuário: ${userName ?? 'irmão(a)'}
-Tema: ${topic ?? 'geral'}
-Contexto adicional: ${context ?? 'nenhum'}
-
-Regras:
-- Tom respeitoso, acolhedor e cristao
-- Não se apresente como Deus nem fale em nome de Deus
-- Não forneça aconselhamento médico, psicológico, financeiro ou jurídico
-- A oração deve ter entre 4-8 frases
-- Use linguagem simples e reconfortante
-
-Gere apenas a oração, sem títulos ou explicações.`;
-
-    const response = await fetch('https://apps.abacus.ai/v1/chat/completions', {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.ABACUSAI_API_KEY}`,
+        'x-api-key': process.env.ANTHROPIC_API_KEY ?? '',
+        'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'gpt-5.4-mini',
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 600,
         messages: [{ role: 'user', content: prompt }],
-        stream: true,
-        max_tokens: 500,
       }),
     });
 
     if (!response.ok) {
+      const err = await response.text();
+      console.error('Anthropic error:', err);
       return NextResponse.json({ error: 'Erro ao gerar oração' }, { status: 500 });
     }
+
+    const data = await response.json();
+    const text = data?.content?.[0]?.text ?? '';
 
     // Deduct credits
     await prisma.user.update({
@@ -67,32 +59,10 @@ Gere apenas a oração, sem títulos ou explicações.`;
       data: { userId, actionType: 'prayer', creditsUsed: cost },
     });
 
-    const stream = new ReadableStream({
-      async start(controller) {
-        const reader = response.body?.getReader();
-        const decoder = new TextDecoder();
-        const encoder = new TextEncoder();
-        try {
-          while (true) {
-            const { done, value } = await reader!.read();
-            if (done) break;
-            const chunk = decoder.decode(value);
-            controller.enqueue(encoder.encode(chunk));
-          }
-        } catch (error) {
-          console.error('Stream error:', error);
-          controller.error(error);
-        } finally {
-          controller.close();
-        }
-      },
-    });
-
-    return new Response(stream, {
+    return new Response(text, {
       headers: {
         'Content-Type': 'text/plain; charset=utf-8',
         'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive',
       },
     });
   } catch (error: any) {
