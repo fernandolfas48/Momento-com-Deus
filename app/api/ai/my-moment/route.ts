@@ -40,7 +40,7 @@ export async function POST(request: Request) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { maxOutputTokens: 1024, temperature: 0.7 },
+          generationConfig: { maxOutputTokens: 2048, temperature: 0.7 },
         }),
       }
     );
@@ -52,15 +52,18 @@ export async function POST(request: Request) {
     }
 
     const data = await response.json();
-    const text = (data?.candidates?.[0]?.content?.parts?.[0]?.text ?? '').trim();
+    const rawText = (data?.candidates?.[0]?.content?.parts?.[0]?.text ?? '').trim();
 
+    // Extrai JSON de forma robusta — ignora markdown, texto antes/depois
     let result: any;
     try {
-      // Remove markdown code blocks if present
-      const clean = text.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
-      result = JSON.parse(clean);
+      // Tenta achar o primeiro { ... } válido no texto
+      const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+      const jsonStr = jsonMatch ? jsonMatch[0] : rawText;
+      result = JSON.parse(jsonStr);
     } catch {
-      result = { reflection: text };
+      // Fallback: trata como reflexão simples
+      result = { reflection: rawText };
     }
 
     if (cost > 0) {
