@@ -34,7 +34,7 @@ export async function POST(request: Request) {
     const prompt = `Você é um assistente espiritual cristão acolhedor. O usuário ${userName ?? 'irmão(a)'} compartilhou o seguinte:\n\n"${userMessage}"\n\nCrie uma experiência espiritual personalizada. Responda em JSON com esta estrutura exata:\n{\n  "reflection": "Uma reflexão acolhedora de 3-5 frases",\n  "bibleReference": "Referência bíblica sugerida (ex: João 3:16)",\n  "bibleText": "O texto da passagem bíblica",\n  "prayer": "Uma oração personalizada de 4-6 frases",\n  "reflectionQuestion": "Uma pergunta para reflexão",\n  "musicSuggestionCategory": "Uma categoria: Oração, Paz, Gratidão, Adoração, Começar o dia, Antes de dormir ou Momentos difíceis"\n}\n\nRegras:\n- Tom cristão, respeitoso, acolhedor, não julgador\n- Português brasileiro\n- Não se apresente como Deus\n- Não forneça aconselhamento médico/psicológico/financeiro/jurídico\n\nResponda com raw JSON apenas. Sem code blocks ou markdown.`;
 
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GOOGLE_AI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${process.env.GOOGLE_AI_API_KEY}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
