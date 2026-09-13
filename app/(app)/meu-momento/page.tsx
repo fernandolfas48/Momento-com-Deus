@@ -53,7 +53,17 @@ export default function MeuMomentoPage() {
               if (parsed?.status === 'processing') {
                 setProgress((prev) => Math.min(prev + 3, 95));
               } else if (parsed?.status === 'completed') {
-                setResult(parsed.result);
+                let finalResult = parsed.result;
+                // Garante que result é sempre um objeto, nunca string JSON
+                if (typeof finalResult === 'string') {
+                  try {
+                    const clean = finalResult.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
+                    finalResult = JSON.parse(clean);
+                  } catch {
+                    finalResult = { reflection: finalResult };
+                  }
+                }
+                setResult(finalResult);
                 setProgress(100);
                 setWasFree(!!parsed.isFirstGeneration);
                 // Paywall contextual: mostra o upsell logo após a primeira
