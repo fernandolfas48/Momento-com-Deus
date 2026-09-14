@@ -63,6 +63,13 @@ export default function MeuMomentoPage() {
                     finalResult = { reflection: finalResult };
                   }
                 }
+                // Caso o Gemini retorne JSON-in-JSON: o campo reflection começa com {
+                if (typeof finalResult?.reflection === 'string' && finalResult.reflection.trimStart().startsWith('{')) {
+                  try {
+                    const inner = JSON.parse(finalResult.reflection.match(/\{[\s\S]*\}/)?.[0] ?? '');
+                    if (inner?.reflection) finalResult = inner;
+                  } catch {}
+                }
                 setResult(finalResult);
                 setProgress(100);
                 setWasFree(!!parsed.isFirstGeneration);
