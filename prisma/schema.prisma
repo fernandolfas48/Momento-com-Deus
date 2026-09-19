@@ -19,6 +19,7 @@ model User {
   frequency            String?
   preferredTime        String?   @map("preferred_time")
   plan                 String    @default("free")
+  stripeCustomerId     String?   @map("stripe_customer_id")
   aiCredits            Int       @default(3) @map("ai_credits")
   aiCreditsResetAt     DateTime? @map("ai_credits_reset_at")
   currentStreak        Int       @default(0) @map("current_streak")
@@ -122,14 +123,16 @@ model Song {
 }
 
 model Subscription {
-  id        String   @id @default(uuid())
-  userId    String   @map("user_id")
-  plan      String
-  status    String   @default("active")
-  priceBrl  Float    @map("price_brl")
-  startedAt DateTime @default(now()) @map("started_at")
-  renewsAt  DateTime? @map("renews_at")
-  createdAt DateTime @default(now()) @map("created_at")
+  id                     String    @id @default(uuid())
+  userId                 String    @map("user_id")
+  plan                   String
+  status                 String    @default("active")
+  stripeSubscriptionId   String?   @map("stripe_subscription_id")
+  stripeCustomerId       String?   @map("stripe_customer_id")
+  priceBrl               Float?    @map("price_brl")
+  startedAt              DateTime  @default(now()) @map("started_at")
+  renewsAt               DateTime? @map("renews_at")
+  createdAt              DateTime  @default(now()) @map("created_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 

@@ -28,7 +28,7 @@ export async function POST(request: Request) {
       customerId = customer.id;
       await prisma.user.update({
         where: { id: userId },
-        data: { stripeCustomerId: customerId } as any,
+        data: { stripeCustomerId: customer.id },
       });
     }
 

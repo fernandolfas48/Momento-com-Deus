@@ -27,21 +27,16 @@ export async function POST(request: Request) {
             plan: 'premium',
             aiCredits: { increment: 50 },
             stripeCustomerId: session.customer,
-          } as any,
+          },
         });
-        await prisma.subscription.upsert({
-          where: { userId } as any,
-          create: {
+        await prisma.subscription.create({
+          data: {
             userId,
             plan: session.metadata?.plan ?? 'monthly',
             status: 'active',
             stripeSubscriptionId: session.subscription,
             stripeCustomerId: session.customer,
-          } as any,
-          update: {
-            status: 'active',
-            stripeSubscriptionId: session.subscription,
-          } as any,
+          },
         });
         break;
       }
@@ -54,11 +49,11 @@ export async function POST(request: Request) {
         if (!userId) break;
         await prisma.user.update({
           where: { id: userId },
-          data: { plan: 'free' } as any,
+          data: { plan: 'free' },
         });
         await prisma.subscription.updateMany({
-          where: { stripeSubscriptionId: sub.id } as any,
-          data: { status: 'cancelled' } as any,
+          where: { stripeSubscriptionId: sub.id },
+          data: { status: 'cancelled' },
         });
         break;
       }
@@ -71,7 +66,7 @@ export async function POST(request: Request) {
         const isActive = sub.status === 'active' || sub.status === 'trialing';
         await prisma.user.update({
           where: { id: userId },
-          data: { plan: isActive ? 'premium' : 'free' } as any,
+          data: { plan: isActive ? 'premium' : 'free' },
         });
         break;
       }
