@@ -33,8 +33,27 @@ export default function PremiumPage() {
       .catch(() => {});
   }, []);
 
-  const handleSubscribe = () => {
-    toast('Em breve!', { description: 'O teste grátis de 7 dias e os pagamentos serão ativados em breve. Obrigado pelo interesse!' });
+  const [loading, setLoading] = useState(false);
+
+  const handleSubscribe = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/stripe/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan: selected }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.url) {
+        toast.error(data?.error ?? 'Erro ao iniciar pagamento');
+        return;
+      }
+      window.location.href = data.url;
+    } catch {
+      toast.error('Erro ao conectar com o sistema de pagamento');
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (user?.plan === 'premium') {
@@ -109,8 +128,8 @@ export default function PremiumPage() {
         </button>
       </div>
 
-      <button onClick={handleSubscribe} className="w-full py-3.5 rounded-xl gold-gradient text-white font-semibold text-sm flex items-center justify-center gap-2">
-        <Crown className="w-4 h-4" /> Experimentar 7 dias grátis
+      <button onClick={handleSubscribe} disabled={loading} className="w-full py-3.5 rounded-xl gold-gradient text-white font-semibold text-sm flex items-center justify-center gap-2 disabled:opacity-70">
+        <Crown className="w-4 h-4" /> {loading ? 'Aguarde...' : 'Experimentar 7 dias grátis'}
       </button>
       <p className="text-center text-xs text-muted-foreground mt-2">
         7 dias grátis, depois R$ {selected === 'yearly' ? `${prices.yearly}/ano` : `${prices.monthly}/mês`}. Cancele quando quiser.

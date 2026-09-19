@@ -33,7 +33,7 @@ export default function PerfilPage() {
 
   const menuItems = [
     { icon: Flame, label: 'Minha jornada', href: '/jornada' },
-    { icon: Crown, label: user?.plan === 'premium' ? 'Gerenciar assinatura' : 'Seja Premium', href: '/premium' },
+    { icon: Crown, label: user?.plan === 'premium' ? 'Gerenciar assinatura' : 'Seja Premium', href: user?.plan === 'premium' ? '/api/stripe/portal-redirect' : '/premium' },
     { icon: Bell, label: 'Notificações', action: () => toast('Notificações serão ativadas em breve.') },
     { icon: Shield, label: 'Termos de Uso', href: '/termos' },
     { icon: BookOpen, label: 'Política de Privacidade', href: '/privacidade' },
