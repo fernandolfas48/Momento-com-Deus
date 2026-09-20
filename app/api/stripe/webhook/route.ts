@@ -21,6 +21,20 @@ export async function POST(request: Request) {
         const session = event.data.object;
         const userId = session.metadata?.userId;
         if (!userId) break;
+
+        // Compra de créditos avulsos
+        if (session.metadata?.type === 'credits') {
+          const credits = parseInt(session.metadata?.credits ?? '0');
+          if (credits > 0) {
+            await prisma.user.update({
+              where: { id: userId },
+              data: { aiCredits: { increment: credits } },
+            });
+          }
+          break;
+        }
+
+        // Assinatura Premium
         await prisma.user.update({
           where: { id: userId },
           data: {

@@ -20,6 +20,8 @@ model User {
   preferredTime        String?   @map("preferred_time")
   plan                 String    @default("free")
   stripeCustomerId     String?   @map("stripe_customer_id")
+  passwordResetToken   String?   @map("password_reset_token")
+  passwordResetExpires DateTime? @map("password_reset_expires")
   aiCredits            Int       @default(3) @map("ai_credits")
   aiCreditsResetAt     DateTime? @map("ai_credits_reset_at")
   currentStreak        Int       @default(0) @map("current_streak")

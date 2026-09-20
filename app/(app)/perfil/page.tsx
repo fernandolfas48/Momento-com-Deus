@@ -65,10 +65,16 @@ export default function PerfilPage() {
           <p className="text-lg font-bold text-[#C9A84C]">{progress?.totalMoments ?? 0}</p>
           <p className="text-[10px] text-muted-foreground">Momentos</p>
         </div>
-        <div className="bg-white rounded-xl p-3 text-center" style={{ boxShadow: 'var(--shadow-sm)' }}>
+        <button
+          onClick={() => router.push('/comprar-creditos')}
+          className="bg-white rounded-xl p-3 text-center hover:bg-[#C9A84C]/5 transition-colors"
+          style={{ boxShadow: 'var(--shadow-sm)' }}
+          title="Comprar mais créditos"
+        >
           <p className="text-lg font-bold text-[#C9A84C]">{progress?.aiCredits ?? 0}</p>
           <p className="text-[10px] text-muted-foreground">Créditos IA</p>
-        </div>
+          <p className="text-[9px] text-[#C9A84C] mt-0.5">+ comprar</p>
+        </button>
       </motion.div>
 
       {/* Menu */}

@@ -81,6 +81,9 @@ export default function LoginPage() {
           Não tem conta?{' '}
           <Link href="/cadastro" className="text-[#C9A84C] font-medium hover:underline">Criar conta</Link>
         </p>
+        <p className="text-center text-sm text-muted-foreground mt-2">
+          <Link href="/esqueci-senha" className="text-[#C9A84C] hover:underline">Esqueci minha senha</Link>
+        </p>
       </div>
     </MobileContainer>
   );
