@@ -8,7 +8,7 @@ import { prisma } from '@/lib/prisma';
 export const CREDIT_PACKAGES = [
   { id: 'credits_10', label: '10 créditos', credits: 10, priceBrl: 4.90, priceEnv: 'STRIPE_PRICE_CREDITS_10' },
   { id: 'credits_30', label: '30 créditos', credits: 30, priceBrl: 9.90, priceEnv: 'STRIPE_PRICE_CREDITS_30' },
-  { id: 'credits_100', label: '100 créditos', credits: 100, priceBrl: 24.90, priceEnv: 'STRIPE_PRICE_CREDITS_100' },
+  { id: 'credits_40', label: '40 créditos', credits: 40, priceBrl: 24.90, priceEnv: 'STRIPE_PRICE_CREDITS_40' },
 ];
 
 export async function GET() {

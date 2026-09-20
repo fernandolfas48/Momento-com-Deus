@@ -8,7 +8,7 @@ import { toast } from 'sonner';
 const PACKAGES = [
   { id: 'credits_10', credits: 10, price: 'R$ 4,90', description: 'Ideal para experimentar', highlight: false },
   { id: 'credits_30', credits: 30, price: 'R$ 9,90', description: 'Mais popular', highlight: true },
-  { id: 'credits_100', credits: 100, price: 'R$ 24,90', description: 'Melhor custo-benefício', highlight: false },
+  { id: 'credits_40', credits: 40, price: 'R$ 24,90', description: 'Melhor custo-benefício', highlight: false },
 ];
 
 export default function ComprarCreditos() {
