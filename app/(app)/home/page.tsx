@@ -112,7 +112,7 @@ export default function HomePage() {
         >
           <Sparkles className="w-5 h-5 text-[#C9A84C] mb-2" />
           <h4 className="text-sm font-semibold">Meu Momento</h4>
-          <p className="text-xs text-muted-foreground mt-0.5">Personalizado com IA</p>
+          <p className="text-xs text-muted-foreground mt-0.5">Personalizado para você</p>
         </button>
         <button
           onClick={() => router.push('/musica')}

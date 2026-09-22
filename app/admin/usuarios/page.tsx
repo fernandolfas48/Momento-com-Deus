@@ -64,7 +64,7 @@ export default function AdminUsuarios() {
                 <th className="text-left px-4 py-3 font-medium">Nome</th>
                 <th className="text-left px-4 py-3 font-medium">Email</th>
                 <th className="text-left px-4 py-3 font-medium">Plano</th>
-                <th className="text-left px-4 py-3 font-medium">Créditos IA</th>
+                <th className="text-left px-4 py-3 font-medium">Créditos</th>
                 <th className="text-left px-4 py-3 font-medium">Streak</th>
                 <th className="text-left px-4 py-3 font-medium">Criado em</th>
               </tr>

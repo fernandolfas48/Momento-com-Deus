@@ -72,7 +72,7 @@ export default function PerfilPage() {
           title="Comprar mais créditos"
         >
           <p className="text-lg font-bold text-[#C9A84C]">{progress?.aiCredits ?? 0}</p>
-          <p className="text-[10px] text-muted-foreground">Créditos IA</p>
+          <p className="text-[10px] text-muted-foreground">Créditos</p>
           <p className="text-[9px] text-[#C9A84C] mt-0.5">+ comprar</p>
         </button>
       </motion.div>

@@ -8,10 +8,10 @@ import { Crown, Sparkles, Infinity, Music, Brain, Heart, Star, Check } from 'luc
 import { toast } from 'sonner';
 
 const benefits = [
-  { icon: Sparkles, text: '50 créditos de IA por mês' },
+  { icon: Sparkles, text: '50 créditos por mês' },
   { icon: Brain, text: 'Orações e reflexões personalizadas' },
   { icon: Music, text: 'Acesso a todas as músicas' },
-  { icon: Heart, text: 'Momentos ilimitados com IA' },
+  { icon: Heart, text: 'Momentos ilimitados personalizados' },
   { icon: Star, text: 'Temas exclusivos' },
 ];
 

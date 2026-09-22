@@ -65,7 +65,7 @@ export default function MusicaPage() {
         <Music className="w-5 h-5 text-[#C9A84C]" /> Música
       </h1>
 
-      {/* Playlist personalizada semanal (curadoria com IA sobre a biblioteca existente) */}
+      {/* Playlist personalizada semanal (curadoria personalizada da biblioteca) */}
       {!playlistLoading && (
         <div className="mb-5">
           {playlist?.locked ? (
@@ -78,7 +78,7 @@ export default function MusicaPage() {
               </div>
               <div className="flex-1 min-w-0">
                 <h3 className="text-sm font-semibold">Sua playlist da semana</h3>
-                <p className="text-xs text-muted-foreground">Selecionada por IA com base nos seus objetivos. Exclusivo Premium.</p>
+                <p className="text-xs text-muted-foreground">Selecionada com base nos seus objetivos. Exclusivo Premium.</p>
               </div>
               <Crown className="w-4 h-4 text-[#C9A84C] flex-shrink-0" />
             </button>

@@ -16,7 +16,7 @@ export default function TermosPage() {
           <p className="text-sm leading-relaxed">O Momento com Deus é um aplicativo espiritual que oferece momentos diários de reflexão, oração e leitura bíblica. O conteúdo gerado por inteligência artificial é de caráter espiritual e não substitui aconselhamento profissional.</p>
           <h3 className="text-sm font-semibold">2. Conta do usuário</h3>
           <p className="text-sm leading-relaxed">Você é responsável por manter a confidencialidade de suas credenciais. Cada conta é pessoal e intransferível.</p>
-          <h3 className="text-sm font-semibold">3. Conteúdo gerado por IA</h3>
+          <h3 className="text-sm font-semibold">3. Conteúdo gerado automaticamente</h3>
           <p className="text-sm leading-relaxed">As orações e reflexões são geradas por inteligência artificial com tom cristão e acolhedor. O aplicativo não fornece aconselhamento médico, psicológico, financeiro ou jurídico.</p>
           <h3 className="text-sm font-semibold">4. Privacidade do diário</h3>
           <p className="text-sm leading-relaxed">Suas reflexões e anotações no diário são privadas e acessíveis apenas por você.</p>

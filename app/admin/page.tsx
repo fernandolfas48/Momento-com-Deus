@@ -18,7 +18,7 @@ export default function AdminDashboard() {
     { icon: Users, label: 'Total de usuários', value: data?.totalUsers ?? 0, color: 'text-blue-500' },
     { icon: Crown, label: 'Assinantes Premium', value: data?.premiumUsers ?? 0, color: 'text-[#C9A84C]' },
     { icon: BookOpen, label: 'Momentos hoje', value: data?.momentsToday ?? 0, color: 'text-green-500' },
-    { icon: Brain, label: 'Créditos IA usados', value: data?.totalCreditsUsed ?? 0, color: 'text-purple-500' },
+    { icon: Brain, label: 'Créditos usados', value: data?.totalCreditsUsed ?? 0, color: 'text-purple-500' },
     { icon: Activity, label: 'Ativos hoje', value: data?.activeToday ?? 0, color: 'text-orange-500' },
     { icon: TrendingUp, label: 'Ativos 30d', value: data?.active30d ?? 0, color: 'text-teal-500' },
   ];

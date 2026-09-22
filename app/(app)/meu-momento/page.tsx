@@ -121,7 +121,7 @@ export default function MeuMomentoPage() {
             {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Gerando...</> : <><Sparkles className="w-4 h-4" /> Criar meu momento</>}
           </button>
           <p className="text-xs text-muted-foreground text-center mt-2">
-            {user?.plan !== 'premium' ? 'Sua primeira geração é grátis ✨ · Depois, 2 créditos de IA' : 'Consome 2 créditos de IA'}
+            {user?.plan !== 'premium' ? 'Sua primeira criação é por nossa conta ✨ · Depois, 2 créditos' : 'Consome 2 créditos'}
           </p>
         </>
       ) : (
@@ -200,8 +200,8 @@ export default function MeuMomentoPage() {
               </div>
               <p className="text-sm text-muted-foreground mb-4">
                 {wasFree
-                  ? 'Essa geração foi por nossa conta. Com o Premium você tem momentos ilimitados com IA, todo dia.'
-                  : 'Com o Premium você tem momentos ilimitados com IA e 50 créditos por mês.'}
+                  ? 'Essa geração foi por nossa conta. Com o Premium você tem momentos ilimitados, todo dia.'
+                  : 'Com o Premium você tem momentos ilimitados e 50 créditos por mês.'}
               </p>
               <button
                 onClick={() => router.push('/premium')}

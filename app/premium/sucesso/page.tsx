@@ -27,7 +27,7 @@ export default function PremiumSucesso() {
           Sua assinatura foi ativada com sucesso. Agora você tem acesso a todos os recursos ilimitados.
         </p>
         <div className="bg-[#C9A84C]/10 rounded-2xl p-4 mb-6 text-left space-y-2">
-          {['50 créditos de IA por mês', 'Momentos ilimitados com IA', 'Acesso a todas as músicas', 'Orações e reflexões personalizadas'].map((b) => (
+          {['50 créditos por mês', 'Momentos ilimitados personalizados', 'Acesso a todas as músicas', 'Orações e reflexões personalizadas'].map((b) => (
             <div key={b} className="flex items-center gap-2 text-sm">
               <Sparkles className="w-4 h-4 text-[#C9A84C] flex-shrink-0" />
               <span>{b}</span>

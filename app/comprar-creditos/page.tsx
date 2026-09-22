@@ -42,8 +42,8 @@ export default function ComprarCreditos() {
           <div className="w-14 h-14 rounded-2xl gold-gradient flex items-center justify-center mx-auto mb-4">
             <Sparkles className="w-7 h-7 text-white" />
           </div>
-          <h1 className="text-xl font-display font-bold mb-1">Comprar créditos de IA</h1>
-          <p className="text-muted-foreground text-sm">Cada crédito permite gerar um momento personalizado com IA.</p>
+          <h1 className="text-xl font-display font-bold mb-1">Comprar créditos</h1>
+          <p className="text-muted-foreground text-sm">Cada crédito permite criar um momento personalizado para você.</p>
         </div>
 
         <div className="space-y-3 mb-6">

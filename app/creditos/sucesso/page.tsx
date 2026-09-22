@@ -20,7 +20,7 @@ function SucessoContent() {
         <Sparkles className="w-10 h-10 text-white" />
       </div>
       <h1 className="text-2xl font-display font-bold mb-2">{credits} créditos adicionados!</h1>
-      <p className="text-muted-foreground mb-6">Seus créditos de IA já estão disponíveis na sua conta.</p>
+      <p className="text-muted-foreground mb-6">Seus créditos já estão disponíveis na sua conta.</p>
       <button onClick={() => router.push('/meu-momento')} className="w-full py-3 rounded-xl gold-gradient text-white font-semibold text-sm mb-3">
         Criar meu momento agora
       </button>
