@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Heart, Sparkles, BookOpen, HandHeart, MessageCircle, Music, Loader2, Crown, X } from 'lucide-react';
+import { Heart, Sparkles, BookOpen, HandHeart, MessageCircle, Music, Loader2, Crown, X, Mic, MicOff, Square } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function MeuMomentoPage() {
@@ -16,7 +16,63 @@ export default function MeuMomentoPage() {
   const [progress, setProgress] = useState(0);
   const [wasFree, setWasFree] = useState(false);
   const [showUpsell, setShowUpsell] = useState(false);
+  const [recording, setRecording] = useState(false);
+  const [transcribing, setTranscribing] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
   const user = session?.user as any;
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+      chunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) chunksRef.current.push(e.data);
+      };
+
+      mediaRecorder.onstop = async () => {
+        stream.getTracks().forEach(t => t.stop());
+        const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
+        await transcribeAudio(blob);
+      };
+
+      mediaRecorder.start();
+      setRecording(true);
+      toast('Gravando... Clique em parar quando terminar.', { icon: '🎙️' });
+    } catch {
+      toast.error('Não foi possível acessar o microfone. Verifique as permissões.');
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && recording) {
+      mediaRecorderRef.current.stop();
+      setRecording(false);
+      setTranscribing(true);
+    }
+  };
+
+  const transcribeAudio = async (blob: Blob) => {
+    try {
+      const formData = new FormData();
+      formData.append('audio', blob, 'recording.webm');
+      const res = await fetch('/api/ai/transcribe', { method: 'POST', body: formData });
+      const data = await res.json();
+      if (data?.text) {
+        setMessage((prev) => prev ? prev + ' ' + data.text : data.text);
+        toast.success('Áudio transcrito com sucesso!');
+      } else {
+        toast.error('Não consegui transcrever o áudio. Tente escrever.');
+      }
+    } catch {
+      toast.error('Erro ao transcrever áudio. Tente escrever.');
+    } finally {
+      setTranscribing(false);
+    }
+  };
 
   const createMoment = async () => {
     if (!message.trim()) { toast.error('Escreva algo sobre como você está se sentindo.'); return; }
@@ -97,12 +153,42 @@ export default function MeuMomentoPage() {
 
       {!result ? (
         <>
-          <textarea
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            placeholder="Escreva livremente como você está se sentindo, o que está passando, seus pedidos ou agradecimentos..."
-            className="w-full h-40 p-4 rounded-xl bg-white border border-border text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#C9A84C]/40"
-          />
+          <div className="relative">
+            <textarea
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              placeholder="Escreva ou grave como você está se sentindo, o que está passando, seus pedidos ou agradecimentos..."
+              className="w-full h-40 p-4 rounded-xl bg-white border border-border text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#C9A84C]/40"
+            />
+          </div>
+
+          {/* Botão de gravação de áudio */}
+          <div className="flex items-center justify-center gap-3 mt-2">
+            <div className="flex-1 h-px bg-border" />
+            <span className="text-xs text-muted-foreground">ou</span>
+            <div className="flex-1 h-px bg-border" />
+          </div>
+          <div className="flex justify-center mt-2">
+            {recording ? (
+              <button
+                onClick={stopRecording}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-red-500 text-white text-sm font-medium animate-pulse"
+              >
+                <Square className="w-4 h-4 fill-white" /> Parar gravação
+              </button>
+            ) : transcribing ? (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Loader2 className="w-4 h-4 animate-spin" /> Transcrevendo...
+              </div>
+            ) : (
+              <button
+                onClick={startRecording}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-[#C9A84C] text-[#C9A84C] text-sm font-medium hover:bg-[#C9A84C]/5 transition-colors"
+              >
+                <Mic className="w-4 h-4" /> Gravar áudio
+              </button>
+            )}
+          </div>
 
           {loading && (
             <div className="mt-4">
