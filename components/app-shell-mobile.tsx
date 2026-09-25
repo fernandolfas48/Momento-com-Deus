@@ -18,13 +18,15 @@ function DesktopSidebar() {
   const pathname = usePathname();
   return (
     <aside className="hidden md:flex flex-col w-64 min-h-screen bg-white border-r border-border fixed left-0 top-0 bottom-0 z-40">
-      {/* Logo */}
+      {/* Logo — igual à página de login */}
       <div className="px-6 py-6 border-b border-border">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl gold-gradient flex items-center justify-center text-white text-lg">☀️</div>
+          <div className="w-14 h-14 rounded-2xl gold-gradient flex items-center justify-center flex-shrink-0">
+            <Sun className="w-7 h-7 text-white" />
+          </div>
           <div>
-            <p className="font-display font-bold text-sm leading-tight">Momento</p>
-            <p className="font-display font-bold text-sm leading-tight text-[#C9A84C]">com Deus</p>
+            <p className="font-display font-bold text-base leading-tight">Momento</p>
+            <p className="font-display font-bold text-base leading-tight text-[#C9A84C]">com Deus</p>
           </div>
         </div>
       </div>
@@ -38,13 +40,13 @@ function DesktopSidebar() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-sm font-medium ${
+              className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all text-base font-medium ${
                 isActive
                   ? 'bg-[#C9A84C]/10 text-[#C9A84C]'
                   : 'text-muted-foreground hover:bg-muted hover:text-foreground'
               }`}
             >
-              <Icon size={20} strokeWidth={isActive ? 2.5 : 1.8} />
+              <Icon size={22} strokeWidth={isActive ? 2.5 : 1.8} />
               {item.label}
             </Link>
           );
@@ -55,9 +57,9 @@ function DesktopSidebar() {
       <div className="px-3 pb-6">
         <Link
           href="/premium"
-          className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-gradient-to-r from-[#C9A84C]/10 to-[#C9A84C]/5 text-[#C9A84C] text-sm font-medium hover:from-[#C9A84C]/20 hover:to-[#C9A84C]/10 transition-all"
+          className="flex items-center gap-2 px-3 py-3 rounded-xl bg-gradient-to-r from-[#C9A84C]/10 to-[#C9A84C]/5 text-[#C9A84C] text-base font-medium hover:from-[#C9A84C]/20 hover:to-[#C9A84C]/10 transition-all"
         >
-          <Crown size={18} />
+          <Crown size={20} />
           Seja Premium
         </Link>
       </div>
