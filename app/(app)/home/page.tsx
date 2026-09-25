@@ -36,11 +36,11 @@ export default function HomePage() {
   const firstName = user?.name?.split(' ')?.[0] ?? '';
 
   return (
-    <div className="px-5 pt-8">
+    <div className="px-5 pt-8 md:px-0 md:pt-0">
       {/* Greeting */}
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
-        <p className="text-muted-foreground text-sm">{getGreeting()},</p>
-        <h1 className="text-2xl font-display font-bold tracking-tight">{firstName}</h1>
+        <p className="text-muted-foreground text-sm md:text-base">{getGreeting()},</p>
+        <h1 className="text-2xl md:text-3xl font-display font-bold tracking-tight">{firstName}</h1>
       </motion.div>
 
       {/* Streak card */}
@@ -103,7 +103,7 @@ export default function HomePage() {
       {/* Quick actions */}
       <motion.div
         initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-        className="grid grid-cols-2 gap-3"
+        className="grid grid-cols-2 md:grid-cols-4 gap-3"
       >
         <button
           onClick={() => router.push('/meu-momento')}
@@ -122,6 +122,24 @@ export default function HomePage() {
           <Sun className="w-5 h-5 text-[#C9A84C] mb-2" />
           <h4 className="text-sm font-semibold">Música</h4>
           <p className="text-xs text-muted-foreground mt-0.5">Ouça e relaxe</p>
+        </button>
+        <button
+          onClick={() => router.push('/diario')}
+          className="hidden md:block bg-white rounded-2xl p-4 text-left hover:bg-[#C9A84C]/5 transition-colors"
+          style={{ boxShadow: 'var(--shadow-sm)' }}
+        >
+          <BookOpen className="w-5 h-5 text-[#C9A84C] mb-2" />
+          <h4 className="text-sm font-semibold">Diário</h4>
+          <p className="text-xs text-muted-foreground mt-0.5">Registre seu dia</p>
+        </button>
+        <button
+          onClick={() => router.push('/jornada')}
+          className="hidden md:block bg-white rounded-2xl p-4 text-left hover:bg-[#C9A84C]/5 transition-colors"
+          style={{ boxShadow: 'var(--shadow-sm)' }}
+        >
+          <Flame className="w-5 h-5 text-[#C9A84C] mb-2" />
+          <h4 className="text-sm font-semibold">Minha Jornada</h4>
+          <p className="text-xs text-muted-foreground mt-0.5">Veja seu progresso</p>
         </button>
       </motion.div>
     </div>
