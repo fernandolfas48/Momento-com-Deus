@@ -81,7 +81,12 @@ export default function MusicaPage() {
       const idx = songs.findIndex((s) => s.id === currentSong.id);
       if (idx < songs.length - 1) playSong(songs[idx + 1]);
     });
-    audio.addEventListener('error', () => toast.error('Erro ao carregar áudio.'));
+    // Só mostra erro se o áudio não carregou nada (não durante buffering)
+    audio.addEventListener('error', (e) => {
+      if (audio.readyState === 0) {
+        toast.error('Não foi possível carregar esta música. Tente novamente.');
+      }
+    });
 
     audio.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false));
 
