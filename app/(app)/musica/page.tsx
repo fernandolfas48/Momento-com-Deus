@@ -50,6 +50,15 @@ export default function MusicaPage() {
       .finally(() => setPlaylistLoading(false));
   }, []);
 
+  // Converte URL do Google Drive para URL do proxy interno
+  const getProxyUrl = (audioUrl: string) => {
+    if (!audioUrl) return '';
+    // Extrai o file ID da URL do Google Drive
+    const match = audioUrl.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+    if (match) return `/api/audio?id=${match[1]}`;
+    return audioUrl; // fallback para URL original se não for Drive
+  };
+
   // Audio player logic
   useEffect(() => {
     if (!currentSong?.audioUrl) return;
@@ -59,7 +68,8 @@ export default function MusicaPage() {
       audioRef.current.src = '';
     }
 
-    const audio = new Audio(currentSong.audioUrl);
+    const proxyUrl = getProxyUrl(currentSong.audioUrl);
+    const audio = new Audio(proxyUrl);
     audioRef.current = audio;
 
     audio.addEventListener('loadedmetadata', () => setDuration(audio.duration));
