@@ -63,6 +63,8 @@ export default function MusicaPage() {
   useEffect(() => {
     if (!currentSong?.audioUrl) return;
 
+    let cancelled = false;
+
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.src = '';
@@ -72,25 +74,26 @@ export default function MusicaPage() {
     const audio = new Audio(proxyUrl);
     audioRef.current = audio;
 
-    audio.addEventListener('loadedmetadata', () => setDuration(audio.duration));
-    audio.addEventListener('timeupdate', () => setProgress(audio.currentTime));
+    audio.addEventListener('loadedmetadata', () => { if (!cancelled) setDuration(audio.duration); });
+    audio.addEventListener('timeupdate', () => { if (!cancelled) setProgress(audio.currentTime); });
     audio.addEventListener('ended', () => {
+      if (cancelled) return;
       setIsPlaying(false);
       setProgress(0);
-      // Auto-play next song
       const idx = songs.findIndex((s) => s.id === currentSong.id);
       if (idx < songs.length - 1) playSong(songs[idx + 1]);
     });
-    // Só mostra erro se o áudio não carregou nada (não durante buffering)
-    audio.addEventListener('error', (e) => {
+    audio.addEventListener('error', () => {
+      if (cancelled) return;
       if (audio.readyState === 0) {
         toast.error('Não foi possível carregar esta música. Tente novamente.');
       }
     });
 
-    audio.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false));
+    audio.play().then(() => { if (!cancelled) setIsPlaying(true); }).catch(() => { if (!cancelled) setIsPlaying(false); });
 
     return () => {
+      cancelled = true;
       audio.pause();
       audio.src = '';
     };

@@ -19,6 +19,7 @@ export default function MomentoPage() {
   const [mood, setMood] = useState('');
   const [generatedPrayer, setGeneratedPrayer] = useState('');
   const [prayerTopic, setPrayerTopic] = useState('');
+  const [showTopics, setShowTopics] = useState(false);
   const [generatingPrayer, setGeneratingPrayer] = useState(false);
   const [saving, setSaving] = useState(false);
   const [streak, setStreak] = useState(0);
@@ -32,7 +33,7 @@ export default function MomentoPage() {
   }, []);
 
   const generatePrayer = async () => {
-    if (!prayerTopic) { toast.error('Selecione um tema.'); return; }
+    if (!prayerTopic || prayerTopic === 'open') { toast.error('Selecione um tema.'); return; }
     setGeneratingPrayer(true);
     setGeneratedPrayer('');
     try {
@@ -47,30 +48,13 @@ export default function MomentoPage() {
         return;
       }
       if (!res.ok) throw new Error();
-      const reader = res.body?.getReader();
-      const decoder = new TextDecoder();
-      let text = '';
-      let partialRead = '';
-      while (true) {
-        const { done, value } = await reader!.read();
-        if (done) break;
-        partialRead += decoder.decode(value, { stream: true });
-        const lines = partialRead.split('\n');
-        partialRead = lines.pop() ?? '';
-        for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            const data = line.slice(6);
-            if (data === '[DONE]') continue;
-            try {
-              const parsed = JSON.parse(data);
-              const content = parsed?.choices?.[0]?.delta?.content ?? '';
-              text += content;
-              setGeneratedPrayer(text);
-            } catch {}
-          }
-        }
+      // A rota retorna texto simples, não SSE
+      const text = await res.text();
+      if (text?.trim()) {
+        setGeneratedPrayer(text.trim());
+      } else {
+        toast.error('Não foi possível gerar a oração. Tente novamente.');
       }
-      if (!text) setGeneratedPrayer('Oração gerada com sucesso.');
     } catch {
       toast.error('Erro ao gerar oração.');
     } finally {
@@ -175,30 +159,35 @@ export default function MomentoPage() {
               {!generatedPrayer && (
                 <div className="mb-4">
                   <button
-                    onClick={() => setPrayerTopic(prayerTopic ? '' : 'open')}
+                    onClick={() => setShowTopics(!showTopics)}
                     className="w-full py-2.5 rounded-xl bg-[#C9A84C]/10 text-[#C9A84C] text-sm font-medium flex items-center justify-center gap-2 hover:bg-[#C9A84C]/15"
                   >
                     <Sparkles className="w-4 h-4" />
                     Gerar oração personalizada
                   </button>
-                  {prayerTopic === 'open' && (
+                  {showTopics && (
                     <div className="mt-3">
                       <p className="text-xs text-muted-foreground mb-2">Selecione um tema:</p>
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex flex-wrap gap-2 mb-3">
                         {prayerTopics.map((t) => (
-                          <button key={t} onClick={() => { setPrayerTopic(t); }} className="px-3 py-1.5 rounded-full bg-white border border-border text-xs hover:border-[#C9A84C] hover:text-[#C9A84C] transition-colors">
+                          <button
+                            key={t}
+                            onClick={() => setPrayerTopic(t)}
+                            className={`px-3 py-1.5 rounded-full text-xs transition-colors ${prayerTopic === t ? 'bg-[#C9A84C] text-white' : 'bg-white border border-border hover:border-[#C9A84C] hover:text-[#C9A84C]'}`}
+                          >
                             {t}
                           </button>
                         ))}
                       </div>
-                    </div>
-                  )}
-                  {prayerTopic && prayerTopic !== 'open' && (
-                    <div className="mt-3">
-                      <p className="text-xs text-muted-foreground mb-2">Tema: <span className="text-[#C9A84C] font-medium">{prayerTopic}</span></p>
-                      <button onClick={generatePrayer} disabled={generatingPrayer} className="w-full py-2.5 rounded-xl gold-gradient text-white text-sm font-medium flex items-center justify-center gap-2 disabled:opacity-50">
-                        {generatingPrayer ? <><Loader2 className="w-4 h-4 animate-spin" /> Gerando...</> : 'Gerar oração'}
-                      </button>
+                      {prayerTopic && (
+                        <button
+                          onClick={generatePrayer}
+                          disabled={generatingPrayer}
+                          className="w-full py-2.5 rounded-xl gold-gradient text-white text-sm font-medium flex items-center justify-center gap-2 disabled:opacity-50"
+                        >
+                          {generatingPrayer ? <><Loader2 className="w-4 h-4 animate-spin" /> Gerando...</> : `Gerar oração sobre ${prayerTopic}`}
+                        </button>
+                      )}
                     </div>
                   )}
                 </div>
