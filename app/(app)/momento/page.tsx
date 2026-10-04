@@ -152,8 +152,10 @@ export default function MomentoPage() {
             <div>
               <h2 className="text-lg font-display font-bold mb-1">Seu momento de oração</h2>
               <p className="text-sm text-muted-foreground mb-4">Você pode fazer esta oração em silêncio ou em voz alta.</p>
-              <div className="bg-white rounded-2xl p-5 mb-4" style={{ boxShadow: 'var(--shadow-sm)' }}>
-                <p className="text-sm text-foreground leading-relaxed italic">{generatedPrayer || themeData?.prayer}</p>
+              <div className="bg-white rounded-2xl p-5 mb-4 w-full" style={{ boxShadow: 'var(--shadow-sm)' }}>
+                <p className="text-sm text-foreground leading-relaxed italic whitespace-pre-wrap break-words">
+                  {generatedPrayer || themeData?.prayer}
+                </p>
               </div>
 
               {!generatedPrayer && (
