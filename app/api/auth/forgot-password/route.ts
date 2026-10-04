@@ -27,7 +27,7 @@ export async function POST(request: Request) {
     const resetUrl = `${appUrl}/redefinir-senha?token=${token}`;
 
     await resend.emails.send({
-      from: 'Momento com Deus <noreply@momentocomdeus.app>',
+      from: 'Momento com Deus <onboarding@resend.dev>',
       to: email,
       subject: 'Redefinição de senha — Momento com Deus',
       html: `

@@ -25,7 +25,23 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { topic, context, userName } = body ?? {};
 
-    const prompt = `Você é um pastor cristão evangélico amoroso. Gere uma oração completa e personalizada em português brasileiro.\n\nNome do usuário: ${userName ?? 'irmão(a)'}\nTema: ${topic ?? 'geral'}\nContexto adicional: ${context ?? 'nenhum'}\n\nRegras IMPORTANTES:\n- A oração DEVE ser completa, com começo, meio e fim. Termine SEMPRE com "Em nome de Jesus, Amém."\n- Tom pastoral, acolhedor e cristão evangélico\n- Dirija a oração ao Pai Celestial/Deus\n- Mencione Jesus Cristo e o Espírito Santo naturalmente\n- Não forneça aconselhamento médico, psicológico, financeiro ou jurídico\n- Entre 6-10 frases bem desenvolvidas\n- Use linguagem simples, calorosa e reconfortante\n\nGere APENAS a oração, sem títulos, introduções ou explicações. Comece diretamente com "Pai Celestial" ou "Senhor Deus".`;
+    const prompt = `Você vai escrever uma oração em PRIMEIRA PESSOA para ${userName ?? 'um cristão'} orar. A pessoa vai LER e ORAR esse texto, então deve estar em primeira pessoa do singular (eu, meu, minha, me).
+
+Tema da oração: ${topic ?? 'geral'}
+${context ? `Contexto adicional: ${context}` : ''}
+
+REGRAS CRÍTICAS:
+- SEMPRE em primeira pessoa: "Senhor, eu venho...", "Eu Te agradeço...", "Me ajuda...", "Meu coração..."
+- NUNCA em terceira pessoa (não use "ele", "dela", "seu filho Luiz" referindo-se ao usuário)
+- A oração é do usuário para Deus — ele está falando com Deus diretamente
+- Comece com "Pai Celestial," ou "Senhor Deus,"
+- Termine SEMPRE com "Em nome de Jesus, Amém."
+- Entre 6-10 frases completas e desenvolvidas
+- Tom cristão evangélico, íntimo e reconfortante
+- Mencione Jesus Cristo e o Espírito Santo naturalmente
+- Não forneça aconselhamento médico, psicológico, financeiro ou jurídico
+
+Gere APENAS o texto da oração, sem títulos ou explicações.`;
 
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${process.env.GOOGLE_AI_API_KEY}`,
