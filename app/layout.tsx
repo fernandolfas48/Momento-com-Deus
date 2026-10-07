@@ -15,9 +15,12 @@ export const metadata = {
   metadataBase: new URL(process.env.NEXTAUTH_URL || 'http://localhost:3000'),
   title: 'Momento com Deus',
   description: 'Seu momento diário com Deus, mesmo quando você tem pouco tempo.',
+  manifest: '/manifest.json',
+  appleWebApp: { capable: true, title: 'Momento com Deus', statusBarStyle: 'default' as const },
   icons: {
     icon: '/favicon.svg',
     shortcut: '/favicon.svg',
+    apple: '/apple-touch-icon.png',
   },
   openGraph: {
     title: 'Momento com Deus',
